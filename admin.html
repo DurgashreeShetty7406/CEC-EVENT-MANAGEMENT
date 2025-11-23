@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-700 to-purple-700 min-h-screen flex flex-col items-center justify-start py-10">
+
+    <!-- HEADER -->
+    <header class="w-full max-w-6xl px-6 mb-10">
+        <h1 class="text-3xl font-bold text-white text-center">CEC Event Management - Admin Panel</h1>
+    </header>
+
+    <!-- MAIN WRAPPER -->
+    <div class="w-full max-w-6xl flex flex-col md:flex-row gap-6">
+
+        <!-- SIDEBAR -->
+        <aside class="md:w-64 glass p-6 rounded-2xl shadow-xl text-white flex flex-col space-y-6">
+            <h2 class="text-2xl font-bold mb-4">Admin Menu</h2>
+            <nav class="flex flex-col space-y-3">
+                <a href="#create-event-section" class="block px-3 py-2 rounded-lg bg-white/20 hover:bg-white/30 transition">➕ Create Event</a>
+                <a href="#admin-event-list" class="block px-3 py-2 rounded-lg bg-white/20 hover:bg-white/30 transition">📋 View Events</a>
+            </nav>
+            <button id="admin-logout-btn" class="mt-auto bg-red-600 hover:bg-red-700 py-2 rounded-lg font-semibold transition">
+                Logout
+            </button>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 glass p-6 rounded-2xl shadow-xl flex flex-col space-y-10 scrollbar-hide overflow-y-auto max-h-[80vh]">
+
+            <!-- CREATE EVENT FORM -->
+            <section id="create-event-section">
+                <h2 class="text-2xl font-bold text-white mb-4">Create New Event</h2>
+
+                <form id="event-form" class="space-y-4">
+
+                    <input type="text" id="admin-title" class="w-full p-3 rounded-lg border border-white/40 bg-white/20 text-white placeholder-white focus:outline-none" placeholder="Event Title" required>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <input type="date" id="admin-date" class="p-3 rounded-lg border border-white/40 bg-white/20 text-white focus:outline-none" required>
+                        <input type="time" id="admin-time" class="p-3 rounded-lg border border-white/40 bg-white/20 text-white focus:outline-none" required>
+                    </div>
+
+                    <input type="text" id="admin-venue" class="w-full p-3 rounded-lg border border-white/40 bg-white/20 text-white placeholder-white focus:outline-none" placeholder="Venue" required>
+
+                    <textarea id="admin-description" class="w-full p-3 rounded-lg border border-white/40 bg-white/20 text-white placeholder-white focus:outline-none" rows="3" placeholder="Event Description" required></textarea>
+
+                    <select id="admin-category" class="border rounded p-2 text-black" required>
+                      <option value="" class="w-full p-3 rounded-lg border border-white/40 bg-white/20 text-white placeholder-white focus:outline-none">-- Select Category --</option>
+                      <option value="technical">Technical</option>
+                      <option value="cultural">Cultural</option>
+                      <option value="sports">Sports</option>
+                    </select>
+
+
+
+                    <input type="number" id="admin-capacity" class="w-full p-3 rounded-lg border border-white/40 bg-white/20 text-white focus:outline-none" placeholder="Maximum Participants" min="1" value="50" required>
+                    <input type="url" id="admin-poster" class="w-full p-3 rounded-lg border border-white/40 bg-white/20 text-white placeholder-white focus:outline-none" placeholder="Poster URL (optional)">
+                    <input type="url" id="admin-reglink" class="w-full p-3 rounded-lg border border-white/40 bg-white/20 text-white placeholder-white focus:outline-none" placeholder="Registration Link (optional)">
+
+                    <button type="submit" class="w-full bg-white text-blue-700 font-bold py-3 rounded-lg hover:bg-gray-100 transition">
+                        Create Event
+                    </button>
+                </form>
+            <div class="mb-4">
+               <label class="font-semibold mr-2 text-white">Filter:</label>
+                 <select id="eventFilter" class="w-64 p-3 rounded-lg border border-white/40 bg-white/20 text-black placeholder-white focus:outline-none">
+                   <option value="all">All Events</option>
+                   <option value="upcoming">Upcoming Events</option>
+                   <option value="past">Past Events</option>
+                 </select>
+            </div>
+
+            <div id="admin-event-list-container"></div>
+
+
+        </main>
+
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAdminEvents();
+        });
+    </script>
+
+</body>
+</html>
+

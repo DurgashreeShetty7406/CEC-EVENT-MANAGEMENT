@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Portal - CEC Events</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .glass {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-blue-700 to-purple-700 min-h-screen flex">
+
+  <!-- SIDEBAR -->
+  <aside class="md:w-64 glass p-6 rounded-2xl shadow-xl text-white flex flex-col space-y-6">
+    <div class="flex flex-col space-y-3">
+      <h2 class="text-2xl font-bold mb-4">Categories</h2>
+      <button class="category-btn bg-white/20 hover:bg-white/40 py-2 px-3 rounded" data-category="technical">Technical</button>
+      <button class="category-btn bg-white/20 hover:bg-white/40 py-2 px-3 rounded" data-category="cultural">Cultural</button>
+      <button class="category-btn bg-white/20 hover:bg-white/40 py-2 px-3 rounded" data-category="sports">Sports</button>
+    </div>
+
+    <!-- Logout button at the bottom -->
+    <button id="student-logout-btn" class="mt-auto bg-red-600 hover:bg-red-700 py-2 rounded-lg font-semibold transition">
+      Logout
+    </button>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 p-6 overflow-y-auto scrollbar-hide">
+    <h1 class="text-3xl font-bold text-white mb-6">Events</h1>
+    <div id="eventsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Events populate here -->
+    </div>
+  </main>
+
+  <script>
+    const eventsContainer = document.getElementById('eventsContainer');
+    const categoryButtons = document.querySelectorAll('.category-btn');
+    const logoutBtn = document.getElementById("student-logout-btn");
+
+    // Get logged-in student info
+    const student = JSON.parse(localStorage.getItem("loggedInStudent"));
+    if (!student) window.location.href = "index.html"; // Redirect if not logged in
+
+    // Logout functionality
+    logoutBtn?.addEventListener("click", () => {
+      localStorage.removeItem("loggedInStudent");
+      window.location.href = "index.html";
+    });
+
+    // Display events by category
+    function showEvents(category) {
+      eventsContainer.innerHTML = "";
+      const events = JSON.parse(localStorage.getItem("events")) || [];
+      if (events.length === 0) return;
+
+      const filtered = events.filter(e => e.category.toLowerCase() === category.toLowerCase());
+      filtered.forEach(event => {
+        const slotsLeft = event.capacity - event.registrations.length;
+        const alreadyRegistered = event.registrations.some(r => r.usn === student.usn);
+
+        const eventCard = document.createElement('div');
+        eventCard.className = "bg-white p-4 rounded-xl shadow hover:shadow-lg transition duration-200 flex flex-col";
+
+        eventCard.innerHTML = `
+          ${event.poster ? `<img src="${event.poster}" alt="${event.title}" class="w-full h-40 object-cover rounded mb-3">` : ""}
+          <h3 class="text-xl font-semibold mb-1">${event.title}</h3>
+          <p class="text-gray-700 mb-1">${event.desc}</p>
+          <p class="text-gray-500 mb-1"><strong>Category:</strong> ${event.category}</p>
+          <p class="text-gray-500 mb-1"><strong>Date:</strong> ${event.date}</p>
+          <p class="text-gray-500 mb-1"><strong>Time:</strong> ${event.time}</p>
+          <p class="text-gray-500 mb-1"><strong>Venue:</strong> ${event.venue}</p>
+          <p class="text-gray-500 mb-1"><strong>Slots Left:</strong> ${slotsLeft}</p>
+          <button class="mt-2 px-4 py-2 rounded text-white ${alreadyRegistered || slotsLeft===0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}"
+            ${alreadyRegistered || slotsLeft===0 ? 'disabled' : ''} onclick="registerEvent(${event.id})">
+            ${alreadyRegistered ? 'Registered' : slotsLeft===0 ? 'Full' : 'Register'}
+          </button>
+        `;
+        eventsContainer.appendChild(eventCard);
+      });
+    }
+
+    // Register student for event
+    function registerEvent(eventId) {
+      const events = JSON.parse(localStorage.getItem("events")) || [];
+      const event = events.find(e => e.id === eventId);
+
+      if (!event) return alert("Event not found!");
+      if (event.registrations.some(r => r.usn === student.usn)) return alert("Already registered!");
+      if (event.registrations.length >= event.capacity) return alert("Event is full!");
+
+      event.registrations.push({ name: student.name, usn: student.usn });
+      localStorage.setItem("events", JSON.stringify(events));
+
+      alert("Registered Successfully!");
+      showEvents(event.category); // Refresh the event list
+    }
+
+    // Initialize with default category
+    function initialize() {
+      const events = JSON.parse(localStorage.getItem("events")) || [];
+      if (events.length > 0) showEvents('technical');
+    }
+
+    // Category filter buttons
+    categoryButtons.forEach(btn => {
+      btn.addEventListener('click', () => showEvents(btn.dataset.category));
+    });
+
+    window.addEventListener('DOMContentLoaded', initialize);
+  </script>
+ 
+  <script src="student-script.js"></script>
+
+</body>
+</html>
+
